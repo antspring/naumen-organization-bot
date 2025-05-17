@@ -8,6 +8,7 @@ from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from time_picker import get_time_keyboard
+from handlers.menu import main_menu_message
 
 router = Router(name=__name__)
 
@@ -19,7 +20,7 @@ async def create_event_handler(message, state):
 @router.message(Command("cancel"))
 async def cancel_operation(message, state):
     await state.clear()
-    await message.answer("Отменено")
+    await main_menu_message(message)
 
 @router.message(EventStates.set_name, RoleFilter(["admin", "organizator"]))
 async def set_event_name_handler(message, state):
@@ -124,11 +125,11 @@ async def change_time_page(callback):
     page = callback.data.split(":")[1]
     await callback.message.edit_reply_markup(reply_markup=get_time_keyboard(int(page)))
 
-@router.message(Command("event_list"))
-async def get_events(message, state):
+@router.callback_query(F.data.startswith("events_all"))
+async def get_events(callback_query):
     result = "Актуальные мероприятия:\n\n"
     for event in EventRepository.getActual():
         result += f"🎯 {event.id}. {event.name}\n\n"
     
     result += "Напишите номер мероприятия, которое хотите посмотреть поподробнее"
-    await message.answer(result)
+    await callback_query.message.answer(result)
