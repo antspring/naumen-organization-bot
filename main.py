@@ -9,13 +9,16 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import web
 from handlers import router
+from middlewares import UserLoaderMiddleware
 
 
 load_dotenv()
 bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
+dp.update.middleware(UserLoaderMiddleware())
 dp.include_router(router)
 
 async def start_polling():

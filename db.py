@@ -2,7 +2,6 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from models import Base, User, Role
-from main import parse_args
 
 
 engine = create_engine("sqlite:///bot.db", echo=True)
@@ -10,7 +9,7 @@ session = Session(engine)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
-
+    from main import parse_args
     args = parse_args()
 
     if  args.seed:
