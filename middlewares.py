@@ -11,6 +11,5 @@ class UserLoaderMiddleware(BaseMiddleware):
             user = UserRepository.getUserById(event.message.chat.id)
             await state.update_data(user=user)
             await state.set_state(UserStates.profile_loaded)
-            print('пользователь создан')
         
         return await handler(event, data)

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models import Base, User, Role
 
 
-engine = create_engine("sqlite:///bot.db", echo=True)
+engine = create_engine("sqlite:///bot.db")
 session = Session(engine)
 
 if __name__ == "__main__":
