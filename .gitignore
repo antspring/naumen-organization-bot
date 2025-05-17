@@ -1,4 +1,5 @@
 /venv
 *.sqlite
+*.db
 .env
 /__pycache__

@@ -1,6 +1,6 @@
 import asyncio
-import sys
 import os
+import argparse
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -9,13 +9,16 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import web
 from handlers import router
+from middlewares import UserLoaderMiddleware
 
 
 load_dotenv()
 bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
+dp.update.middleware(UserLoaderMiddleware())
 dp.include_router(router)
 
 async def start_polling():
@@ -35,10 +38,17 @@ async def start_webhook():
     await bot.set_webhook(os.getenv('WEBHOOK_URL'))
     web.run_app(app, host="0.0.0.0", port=8443)
 
-if __name__ == "__main__":
-    mode = sys.argv[1] if len(sys.argv) > 1 else "polling"
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--webhook', action="store_true")
+    parser.add_argument('--seed', action="store_true")
+    return parser.parse_args()
 
-    if mode == "webhook":
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    if args.webhook:
         asyncio.run(start_webhook())
     else:
         asyncio.run(start_polling())
