@@ -16,6 +16,11 @@ async def create_event_handler(message, state):
     await state.set_state(EventStates.set_name)
     await message.answer("Введи название мероприятия")
 
+@router.message(Command("cancel"))
+async def cancel_operation(message, state):
+    await state.clear()
+    await message.answer("Отменено")
+
 @router.message(EventStates.set_name, RoleFilter(["admin", "organizator"]))
 async def set_event_name_handler(message, state):
     event = Event(name=message.text)
@@ -125,9 +130,5 @@ async def get_events(message, state):
     for event in EventRepository.getActual():
         result += f"🎯 {event.id}. {event.name}\n\n"
     
+    result += "Напишите номер мероприятия, которое хотите посмотреть поподробнее"
     await message.answer(result)
-
-# @router.message()
-# async def getFileId(message):
-#     bot = message.bot
-#     await bot.send_photo(chat_id=message.chat.id, photo=message.photo[-1].file_id)
