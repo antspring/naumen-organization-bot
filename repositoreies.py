@@ -26,3 +26,7 @@ class EventRepository():
     def getActual():
         query = select(Event).where(Event.end_time > datetime.now(timezone.utc))
         return session.execute(query).scalars().all()
+    
+    def getById(id):
+        query = select(Event).where(Event.id == id)
+        return session.scalar(query)

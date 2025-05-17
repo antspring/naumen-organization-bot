@@ -15,3 +15,4 @@ class EventStates(StatesGroup):
     set_start_time = State()
     set_end_date = State()
     set_end_time = State()
+    choosing = State()

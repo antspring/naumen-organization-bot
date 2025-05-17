@@ -9,6 +9,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from time_picker import get_time_keyboard
 from handlers.menu import main_menu_message
+from keyboards import get_concrete_event_keyboard
 
 router = Router(name=__name__)
 
@@ -126,10 +127,30 @@ async def change_time_page(callback):
     await callback.message.edit_reply_markup(reply_markup=get_time_keyboard(int(page)))
 
 @router.callback_query(F.data.startswith("events_all"))
-async def get_events(callback_query):
+async def get_events(callback_query, state):
     result = "Актуальные мероприятия:\n\n"
     for event in EventRepository.getActual():
         result += f"🎯 {event.id}. {event.name}\n\n"
     
     result += "Напишите номер мероприятия, которое хотите посмотреть поподробнее"
+
+    await state.set_state(EventStates.choosing)
     await callback_query.message.answer(result)
+
+@router.message(EventStates.choosing)
+async def get_concrete_event(message, state):
+    event = EventRepository.getById(message.text)
+    role_id = (await state.get_data()).get("user").role_id
+    if not event:
+        await message.answer("Такого мероприятия не найдено")
+    else:
+        await message.answer_photo(
+            photo=event.map,
+            caption=f'''🎯 {event.name}\n
+{event.description}\n
+{event.schedule}\n
+Время начала: {event.start_time}
+Время конца: {event.end_time}\n''',
+            reply_markup=get_concrete_event_keyboard(role_id)
+        )
+        await state.clear()
