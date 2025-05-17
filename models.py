@@ -23,3 +23,7 @@ class Role(Base):
     users: Mapped[List["User"]] = relationship(
         back_populates="role", cascade="all, delete-orphan"
     )
+
+    ADMIN = 1
+    ORGANIZATOR = 2
+    PARTICIPANT = 3
