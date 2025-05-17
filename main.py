@@ -11,7 +11,7 @@ from aiogram.webhook.aiohttp_server import (
 )
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import web
-from handlers import user, event
+from handlers import user, event, menu
 from middlewares import UserLoaderMiddleware
 
 
@@ -20,6 +20,7 @@ bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=Pars
 dp = Dispatcher(storage=MemoryStorage())
 dp.update.middleware(UserLoaderMiddleware())
 
+dp.include_router(menu.router)
 dp.include_router(user.router)
 dp.include_router(event.router)
 
