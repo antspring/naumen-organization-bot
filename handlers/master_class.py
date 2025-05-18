@@ -159,5 +159,27 @@ async def masterclass_delete(callback_query):
         await callback_query.message.answer("Мастер-класс удален")
     except:
         await callback_query.message.answer("Такого мастер-класса нет")
-    
 
+
+@router.callback_query(F.data.startswith("masterclass_check_in"))
+async def masterclass_check_in(callback_query, state):
+    master_class_id = callback_query.data.split(" ")[1]
+    user = (await state.get_data()).get("user")
+    try:
+        if MasterClassRepository.checkIn(master_class_id, user.id):
+            await callback_query.message.answer("Вы записаны на мастер-класс")
+        else:
+            await callback_query.message.answer("На мастер-классе нет мест")
+    except:
+        await callback_query.message.answer("Вы уже записаны на мастер-класс или такого мастер-класса нет")
+
+
+@router.callback_query(F.data.startswith("masterclass_check_out"))
+async def masterclass_check_out(callback_query, state):
+    master_class_id = callback_query.data.split(" ")[1]
+    user = (await state.get_data()).get("user")
+    try:
+        MasterClassRepository.checkOut(master_class_id, user.id)
+        await callback_query.message.answer("Вы вышли из мастер-класса")
+    except:
+        await callback_query.message.answer("Вы не записаны на мастер-класс или такого мастер-класса нет")
