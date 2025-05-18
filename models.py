@@ -1,10 +1,12 @@
 from typing import List, Optional
-from sqlalchemy import ForeignKey, String, Text, DateTime
+from sqlalchemy import ForeignKey, String, Text, DateTime, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
+
 class Base(DeclarativeBase):
     pass
+
 
 class User(Base):
     __tablename__ = "users"
@@ -15,7 +17,8 @@ class User(Base):
 
     role: Mapped["Role"] = relationship(back_populates="users")
 
-    user_events: Mapped[List["EventParticipants"]] = relationship("EventParticipants", back_populates="user")
+    user_events: Mapped[List["EventParticipants"]] = relationship(
+        "EventParticipants", back_populates="user")
 
 
 class Role(Base):
@@ -49,16 +52,55 @@ class Event(Base):
     start_time: Mapped[datetime] = mapped_column(DateTime())
     end_time: Mapped[datetime] = mapped_column(DateTime())
 
-    user_events: Mapped[List["EventParticipants"]] = relationship("EventParticipants", back_populates="event")
+    user_events: Mapped[List["EventParticipants"]] = relationship(
+        "EventParticipants", back_populates="event")
+
+    master_classes: Mapped[List["MasterClass"]] = relationship(
+        "MasterClass", back_populates="event", cascade="all, delete-orphan"
+    )
 
 
 class EventParticipants(Base):
     __tablename__ = "event_paticipants"
 
-    event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    event_id: Mapped[int] = mapped_column(
+        ForeignKey("events.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), primary_key=True)
 
-    joined_at: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now(timezone.utc))
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(), default=datetime.now(timezone.utc))
 
     user: Mapped["User"] = relationship("User", back_populates="user_events")
-    event: Mapped["Event"] = relationship("Event", back_populates="user_events")
+    event: Mapped["Event"] = relationship(
+        "Event", back_populates="user_events")
+
+
+class MasterClass(Base):
+    __tablename__ = "master_class"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    name: Mapped[str] = mapped_column(String())
+    description: Mapped[Optional[str]] = mapped_column(Text())
+    start_time: Mapped[datetime] = mapped_column(DateTime())
+    end_time: Mapped[datetime] = mapped_column(DateTime())
+    capacity: Mapped[int] = mapped_column(Integer())
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id"))
+    event: Mapped["Event"] = relationship(
+        "Event", back_populates="master_classes")
+
+
+class MasterClassParticipants(Base):
+    __tablename__ = "master_class_participants"
+
+    master_class_id: Mapped[int] = mapped_column(
+        ForeignKey("master_class.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), primary_key=True)
+
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(), default=datetime.now(timezone.utc))
+
+    user: Mapped["User"] = relationship("User")
+    master_class: Mapped["MasterClass"] = relationship("MasterClass")

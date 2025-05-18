@@ -1,5 +1,5 @@
 from db import session
-from models import User, Role, Event, EventParticipants
+from models import User, Role, Event, EventParticipants, MasterClass
 from sqlalchemy import select, delete
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timezone
@@ -79,3 +79,22 @@ class EventParticipantsRepository():
     def delete(eventParticipants):
         session.delete(eventParticipants)
         session.commit()
+
+
+class MasterClassRepository():
+
+    def create(masterclass):
+        session.add(masterclass)
+        session.commit()
+
+    def getByEventId(event_id):
+        query = select(MasterClass).where(MasterClass.event_id == event_id)
+        return session.execute(query).scalars().all()
+
+    def getById(id):
+        query = select(MasterClass).where(MasterClass.id == id)
+        return session.scalar(query)
+
+    def delete(id):
+        query = delete(MasterClass).where(MasterClass.id == id)
+        session.execute(query)
