@@ -4,6 +4,7 @@ from states import UserStates
 from repositoreies import UserRepository
 from models import Role
 from handlers.menu import main_menu_message
+from filters import RoleFilter
 
 
 router = Router(name=__name__)
@@ -39,7 +40,7 @@ async def registration_handler(message, state):
     await state.clear()
 
 
-@router.message(Command("set_organizator"))
+@router.message(Command("set_organizator"), RoleFilter(["admin"]))
 async def set_organizator(message):
     try:
         args = message.text.split()
@@ -55,7 +56,7 @@ async def set_organizator(message):
         await message.answer("Такого пользователя нет")
 
 
-@router.message(Command("set_admin"))
+@router.message(Command("set_admin"), RoleFilter(["admin"]))
 async def set_organizator(message):
     try:
         args = message.text.split()
