@@ -1,6 +1,6 @@
 from db import session
 from models import User, Role, Event, EventParticipants
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timezone
 
@@ -37,6 +37,10 @@ class EventRepository():
         setattr(event, field_name, value)
         session.commit()
         return event
+    
+    def delete(id):
+        query = delete(Event).where(Event.id == id)
+        session.execute(query)
 
 class EventParticipantsRepository():
 

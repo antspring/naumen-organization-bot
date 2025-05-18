@@ -20,3 +20,4 @@ class EventStates(StatesGroup):
     edit_getting_value = State()
     edit_getting_date = State()
     edit_getting_time = State()
+    delete = State()

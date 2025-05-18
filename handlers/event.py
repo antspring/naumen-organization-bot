@@ -267,3 +267,10 @@ async def process_end_time(callback, state):
     await get_event_response(callback.message, event, role_id)
 
     await state.clear()
+
+@router.callback_query(F.data.startswith("event_delete"), RoleFilter(["admin"]))
+async def delete_event(callback_query, state):
+    event_id = callback_query.data.split(" ")[1]
+    EventRepository.delete(event_id)
+    await callback_query.message.answer("Событие удалено")
+    await main_menu_message(callback_query.message)
