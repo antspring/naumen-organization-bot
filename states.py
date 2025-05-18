@@ -16,3 +16,7 @@ class EventStates(StatesGroup):
     set_end_date = State()
     set_end_time = State()
     choosing = State()
+    edit = State()
+    edit_getting_value = State()
+    edit_getting_date = State()
+    edit_getting_time = State()
