@@ -132,10 +132,9 @@ async def masterclass_list(callback_query, state):
     for masterclass in masterclasses:
         result += f"🎯 {masterclass.id}. {masterclass.name}\n"
 
-    result += "Напиши номер мастер-класса, чтобы получить подробную информацию"
+    result += "\nНапиши номер мастер-класса, чтобы получить подробную информацию"
 
     await state.set_state(MasterClassStates.choosing)
-    await state.update_data(event_id=event_id)
 
     await callback_query.message.answer(result)
 
@@ -183,3 +182,23 @@ async def masterclass_check_out(callback_query, state):
         await callback_query.message.answer("Вы вышли из мастер-класса")
     except:
         await callback_query.message.answer("Вы не записаны на мастер-класс или такого мастер-класса нет")
+
+
+@router.callback_query(F.data.startswith("masterclasses_my_list"))
+async def masterclass_list_my(callback_query, state):
+    user_id = (await state.get_data()).get("user").id
+    groupd_items = MasterClassRepository.getForUser(user_id)
+
+    if groupd_items:
+        result = ""
+        for event, master_classes in groupd_items.items():
+            result += f"📅 {event.name}:\n\n"
+            for master_class in master_classes:
+                result += f"    🎯 {master_class.id}. {master_class.name}\n"
+        
+        result += "\nНапиши номер мастер-класса, чтобы получить подробную информацию"
+        await callback_query.message.answer(result)
+        await state.set_state(MasterClassStates.choosing)
+
+    else:
+        callback_query.message.answer("Вы не записаны ни на один мастер-класс")

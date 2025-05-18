@@ -3,6 +3,8 @@ from models import User, Role, Event, EventParticipants, MasterClass, MasterClas
 from sqlalchemy import select, delete
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timezone
+from sqlalchemy.orm import selectinload
+from collections import defaultdict
 
 
 class UserRepository():
@@ -121,3 +123,14 @@ class MasterClassRepository():
         masterClassParticipant = session.scalar(query)
         session.delete(masterClassParticipant)
         session.commit()
+
+    def getForUser(user_id):
+        query = select(MasterClass).join(MasterClassParticipants).where(
+            MasterClassParticipants.user_id == user_id).options(selectinload(MasterClass.event))
+        master_classes = session.scalars(query).all()
+        grouped = defaultdict(list)
+
+        for mc in master_classes:
+            grouped[mc.event].append(mc)
+        
+        return grouped
