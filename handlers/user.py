@@ -2,6 +2,9 @@ from aiogram import Router
 from aiogram.filters import Command
 from states import UserStates
 from repositoreies import UserRepository
+from models import Role
+from handlers.menu import main_menu_message
+
 
 router = Router(name=__name__)
 
@@ -29,6 +32,7 @@ async def registration_handler(message, state):
 
 Похоже, вы уже завершили регистрацию.  
 
-🔹 Ваш текущий статус: {user.role.name}''')
+🔹 Ваш текущий статус: {Role.NAMES[user.role.name]}''')
+        await main_menu_message(message)
     
     await state.clear()

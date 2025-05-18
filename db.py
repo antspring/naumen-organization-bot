@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     if  args.seed:
         roles = [Role(name="admin"), Role(name="organizator"), Role(name="participant")]
-        user = User(telegram_id=os.getenv('ADMIN_ID'), full_name="administrator", role=roles[0])
+        user = User(id=os.getenv('ADMIN_ID'), full_name="administrator", role=roles[0])
 
         session.add_all(roles)
         session.add(user)
