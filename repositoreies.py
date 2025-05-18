@@ -15,6 +15,11 @@ class UserRepository():
         user = User(id=id, full_name=full_name, role_id=Role.PARTICIPANT)
         session.add(user)
         session.commit()
+    
+    def getEvents(id):
+        query = select(Event).join(EventParticipants).where(EventParticipants.user_id == id).order_by(Event.start_time)
+        result = session.execute(query)
+        return result.scalars().all()
 
 
 class EventRepository():

@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from states import EventStates
-from repositoreies import EventRepository, EventParticipantsRepository
+from repositoreies import EventRepository, EventParticipantsRepository, UserRepository
 from filters import RoleFilter
 from models import Event
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
@@ -268,9 +268,27 @@ async def process_end_time(callback, state):
 
     await state.clear()
 
+
 @router.callback_query(F.data.startswith("event_delete"), RoleFilter(["admin"]))
 async def delete_event(callback_query, state):
     event_id = callback_query.data.split(" ")[1]
     EventRepository.delete(event_id)
     await callback_query.message.answer("Событие удалено")
     await main_menu_message(callback_query.message)
+
+
+@router.callback_query(F.data.startswith("events_my"))
+async def get_user_events(callback_query, state):
+    user_id = (await state.get_data()).get('user').id
+    events = UserRepository.getEvents(user_id)
+    result = ""
+    if not events:
+        await callback_query.message.answer("Вы не записаны ни на одно мероприятие")
+    else:
+        for event in events:
+            result += f"🎯 {event.id}. {event.name}\n\n"
+
+        result += "Напишите номер мероприятия, которое хотите посмотреть поподробнее"
+
+        await state.set_state(EventStates.choosing)
+        await callback_query.message.answer(result)
