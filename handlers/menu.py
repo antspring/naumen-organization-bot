@@ -9,7 +9,8 @@ async def main_menu_message(message):
 
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📅 Все мероприятия", callback_data="events_all"),
-        InlineKeyboardButton(text="📖 Мои мероприятия", callback_data="events_my")]
+        InlineKeyboardButton(text="📖 Мои мероприятия", callback_data="events_my")],
+        [InlineKeyboardButton(text="📝 Мои мастер-классы", callback_data="masterclasses_my_list")],
     ])
 
     await message.answer(text, reply_markup=kb)

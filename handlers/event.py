@@ -49,7 +49,7 @@ async def set_event_map_handler(message, state):
     event = (await state.get_data()).get("event")
     event.map = message.photo[-1].file_id
     await state.set_state(EventStates.set_schedule)
-    await state.update_data(event=event, is_master_class=True)
+    await state.update_data(event=event)
     await message.answer("Отправь расписание мероприятия")
 
 
@@ -125,10 +125,7 @@ async def process_end_time(callback, state):
     event.start_time = start_datetime
     event.end_time = end_datetime
 
-    if data.get("is_master_class"):
-        pass
-    else:
-        EventRepository.create(event)
+    EventRepository.create(event)
 
     await callback.message.answer("Событие создано")
 

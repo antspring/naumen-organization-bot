@@ -21,3 +21,19 @@ class EventStates(StatesGroup):
     edit_getting_date = State()
     edit_getting_time = State()
     delete = State()
+
+
+class MasterClassStates(StatesGroup):
+    set_name = State()
+    set_description = State()
+    set_start_date = State()
+    set_start_time = State()
+    set_end_date = State()
+    set_end_time = State()
+    set_capacity = State()
+    choosing = State()
+    edit = State()
+    edit_getting_value = State()
+    edit_getting_date = State()
+    edit_getting_time = State()
+    delete = State()

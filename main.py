@@ -11,21 +11,25 @@ from aiogram.webhook.aiohttp_server import (
 )
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import web
-from handlers import user, event, menu
+from handlers import user, event, menu, master_class
 from middlewares import UserLoaderMiddleware
 
 
 load_dotenv()
-bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=os.getenv('TOKEN'),
+          default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 dp.update.middleware(UserLoaderMiddleware())
 
 dp.include_router(menu.router)
 dp.include_router(user.router)
 dp.include_router(event.router)
+dp.include_router(master_class.router)
+
 
 async def start_polling():
     await dp.start_polling(bot)
+
 
 async def start_webhook():
     app = web.Application()
@@ -40,6 +44,7 @@ async def start_webhook():
 
     await bot.set_webhook(os.getenv('WEBHOOK_URL'))
     web.run_app(app, host="0.0.0.0", port=8443)
+
 
 def parse_args():
     parser = argparse.ArgumentParser()

@@ -1,8 +1,10 @@
 from db import session
-from models import User, Role, Event, EventParticipants
+from models import User, Role, Event, EventParticipants, MasterClass, MasterClassParticipants
 from sqlalchemy import select, delete
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timezone
+from sqlalchemy.orm import selectinload
+from collections import defaultdict
 
 
 class UserRepository():
@@ -79,3 +81,56 @@ class EventParticipantsRepository():
     def delete(eventParticipants):
         session.delete(eventParticipants)
         session.commit()
+
+
+class MasterClassRepository():
+
+    def create(masterclass):
+        session.add(masterclass)
+        session.commit()
+
+    def getByEventId(event_id):
+        query = select(MasterClass).where(MasterClass.event_id == event_id)
+        return session.execute(query).scalars().all()
+
+    def getById(id):
+        query = select(MasterClass).where(MasterClass.id == id)
+        return session.scalar(query)
+
+    def delete(id):
+        query = delete(MasterClass).where(MasterClass.id == id)
+        session.execute(query)
+
+    def checkIn(master_class_id, user_id):
+        query = select(MasterClass).where(MasterClass.id == master_class_id)
+        master_class = session.scalar(query)
+        if master_class.capacity > 0:
+            master_class.capacity -= 1
+            masterClassParticipant = MasterClassParticipants(
+                master_class_id=master_class.id, user_id=user_id)
+            session.add(masterClassParticipant)
+            session.commit()
+            return True
+        else:
+            return False
+
+    def checkOut(master_class_id, user_id):
+        query = select(MasterClass).where(MasterClass.id == master_class_id)
+        master_class = session.scalar(query)
+        master_class.capacity += 1
+        query = select(MasterClassParticipants).where(
+            MasterClassParticipants.master_class_id == master_class_id, MasterClassParticipants.user_id == user_id)
+        masterClassParticipant = session.scalar(query)
+        session.delete(masterClassParticipant)
+        session.commit()
+
+    def getForUser(user_id):
+        query = select(MasterClass).join(MasterClassParticipants).where(
+            MasterClassParticipants.user_id == user_id).options(selectinload(MasterClass.event))
+        master_classes = session.scalars(query).all()
+        grouped = defaultdict(list)
+
+        for mc in master_classes:
+            grouped[mc.event].append(mc)
+        
+        return grouped
